@@ -1,1 +1,1 @@
-# PyCryptor
+# PyCryptor: Simple File Encryption
