@@ -19,13 +19,10 @@ def check_password(password):
     # Hash value for master password
     # current password is "password"
     master_hash = b'J\x15\xa3\x0fL\xfbi|8\x9c\x91\xb7\x15\xe7\xbf,U\xa5l\xcf%\xc18\xa5i\x96%\xe3\xec\xca\xb6\x8d\xdc}\tB+\xce)~\xdd/\xae\xcf=\xebF?hZ\x0f\x99\xe6\x17\x15\x1f\xe6\x1b\x18\xd0\xc4\xed\xbfM'
-
     # Salt value for password hash function
     password_salt = b"\xc9\xf3R\xe7\x97Q\xfa\x14\xb6&\xe9\xd7D\x82\xf7/"
-
-    # Hashing password attempt, 5 million iterations SHA256
-    hashattempt = hashlib.pbkdf2_hmac('sha512',password,password_salt, 5000000)
-    # Return if entered password hash == master password hash
+    # Hashing password attempt, 5 million iterations SHA512
+    hashattempt = hashlib.pbkdf2_hmac('sha512', password, password_salt, 5000000, 64)
     return hashattempt == master_hash
 
 def establish_key(password):
@@ -105,9 +102,9 @@ if __name__ == '__main__':
             print(f"{colour.RED}Incorrect password{colour.END}")
 
     # Establish key for encryption using master password
-    print("Generating key 🔑")
+    print("Generating encryption key 🔑")
     key = establish_key(password)
-    print(f"{colour.GREEN}Key generated{colour.END}")
+    print(f"{colour.GREEN}Encryption key generated{colour.END}")
 
     # Create array of files in current directory
     files = get_files(os.path.basename(__file__))
@@ -130,7 +127,7 @@ if __name__ == '__main__':
         if encryption_status and decision == "y":
             decrypt_files(key, files)
             f = open("flag.txt", "w")
-            f.write("1")
+            f.write("0")
             f.close()
             print("Your files are now decrypted")
     
@@ -138,7 +135,7 @@ if __name__ == '__main__':
         elif not encryption_status and decision == "y":
             encrypt_files(key, files)
             f = open("flag.txt", "w")
-            f.write("0")
+            f.write("1")
             f.close()
             print("Your files are now encrypted")
 
