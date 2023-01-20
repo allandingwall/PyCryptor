@@ -22,7 +22,7 @@ def check_password(password):
     # Salt value for password hash function
     password_salt = b"\xc9\xf3R\xe7\x97Q\xfa\x14\xb6&\xe9\xd7D\x82\xf7/"
     # Hashing password attempt, 5 million iterations SHA512
-    hashattempt = hashlib.pbkdf2_hmac('sha512', password, password_salt, 5000000, 64)
+    hashattempt = hashlib.pbkdf2_hmac('sha512', password, password_salt, 5000000)
     return hashattempt == master_hash
 
 def establish_key(password):
@@ -36,21 +36,20 @@ def establish_key(password):
         algorithm = hashes.SHA512(),
         length = 32,
         salt = key_salt,
-        iterations = 5000000,
+        iterations = 5000000
     )
     # Create key using KDF and password
     key = base64.urlsafe_b64encode(kdf.derive(password))
     return Fernet(key)
 
-def get_files(script_name):
+def get_files():
     # Function to gather all files in current working directory in array
-    files = []
-    for file in os.listdir():
-        # Exclude directories and python script
-        if os.path.isfile(file) and file != script_name and file != "flag.txt":
-            files.append(file)
-    # Return files array
-    return files
+    arr = []
+    for root, files in os.walk(".", topdown=False):
+        for name in files:
+            if name != os.path.basename(__file__) and name != "flag.txt":
+                arr.append(os.path.join(root, name))
+    return arr
 
 def encrypt_files(key, files):
     # Function to encrypt files
@@ -94,7 +93,7 @@ if __name__ == '__main__':
     # Establish knowledge of master password
     while True:
         password = (getpass.getpass(prompt='Enter password: ', stream=None)).encode()   
-        print("\nVerifying password...")
+        print("Verifying password...")
         if check_password(password):
             print(f"{colour.GREEN}Password verified{colour.END}")
             break
@@ -107,8 +106,7 @@ if __name__ == '__main__':
     print(f"{colour.GREEN}Encryption key generated{colour.END}")
 
     # Create array of files in current directory
-    files = get_files(os.path.basename(__file__))
-
+    files = get_files()
     # Determine current encryption status of files using flag text file
     encryption_status = encryption_check("flag.txt")
 
